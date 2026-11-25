@@ -1,5 +1,5 @@
 {
-  "$schema": "https://ui.shadcn.com/schema.json",
+  "$schema": "[https://ui.shadcn.com/schema.json](https://ui.shadcn.com/schema.json)",
   "style": "new-york",
   "rsc": false,
   "tsx": false,
@@ -19,4 +19,3 @@
   },
   "iconLibrary": "lucide"
 }
-```[span_0](start_span)[span_0](end_span)
