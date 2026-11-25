@@ -3,6 +3,7 @@ const STORAGE_KEYS = {
   AGENTS: "native_app_agents",
   TESTIMONIALS: "native_app_testimonials",
   INQUIRIES: "native_app_inquiries",
+  BLOG: "native_app_blog_posts",
   USER: "native_app_user",
   TOKEN: "native_app_token",
 };
@@ -77,6 +78,54 @@ const defaultTestimonials = [
   },
 ];
 
+const defaultBlogPosts = [
+  {
+    id: "bp1",
+    slug: "reading-the-market-in-2026",
+    title: "Reading the Market in 2026: Where Quality Still Commands a Premium",
+    category: "Market Insights",
+    read_time: 5,
+    author_name: "Elena Vance",
+    featured_image:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80",
+    excerpt:
+      "Why well-located, well-built homes continue to hold their value while the wider market adjusts.",
+    content:
+      "Across prime neighbourhoods, demand for well-located and thoughtfully built homes has stayed resilient even as the wider market has cooled. Buyers and tenants are placing more weight on natural light, usable outdoor space and building quality, and they are willing to pay for it.\n\nFor owners, this means presentation and pricing strategy matter more than ever. Homes that are priced to the current market and professionally presented are still attracting multiple enquiries within days, while overpriced listings tend to sit and lose negotiating power.",
+    created_date: "2026-11-03T00:00:00.000Z",
+  },
+  {
+    id: "bp2",
+    slug: "neighbourhood-guide-marina-district",
+    title: "Neighbourhood Guide: Living in the Marina District",
+    category: "Neighbourhoods",
+    read_time: 4,
+    author_name: "Elena Vance",
+    featured_image:
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80",
+    excerpt:
+      "Waterfront walks, quiet streets and easy access to the city centre: what daily life looks like.",
+    content:
+      "The Marina District combines a relaxed waterfront setting with quick access to the centre of the city. Residents enjoy tree-lined streets, independent cafes and a strong sense of community.\n\nProperty here ranges from compact apartments to substantial villas with terraces and views. Availability is limited, so well-presented homes tend to move quickly.",
+    created_date: "2026-10-20T00:00:00.000Z",
+  },
+  {
+    id: "bp3",
+    slug: "preparing-your-home-to-list",
+    title: "Preparing Your Home to List: A Practical Checklist",
+    category: "Selling",
+    read_time: 6,
+    author_name: "Elena Vance",
+    featured_image:
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80",
+    excerpt:
+      "Simple steps that make a measurable difference to how your property is received.",
+    content:
+      "First impressions begin before a viewing: clear photography, accurate floor plans and an honest description set expectations and build trust.\n\nInside, decluttering, fixing small defects and refreshing key rooms such as the kitchen and entrance can noticeably improve how a home feels. Finally, agree a pricing strategy with your advisor based on recent comparable sales.",
+    created_date: "2026-10-05T00:00:00.000Z",
+  },
+];
+
 function getCollection(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
@@ -132,8 +181,17 @@ export const apiClient = {
       defaultTestimonials
     ),
     Inquiry: createEntityStore(STORAGE_KEYS.INQUIRIES, []),
+    BlogPost: createEntityStore(STORAGE_KEYS.BLOG, defaultBlogPosts),
   },
   auth: {
+    async me() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.USER);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    },
     async loginViaEmailPassword(email, _password) {
       const user = { email, id: "local-user" };
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
