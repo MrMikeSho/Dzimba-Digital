@@ -1,3 +1,5 @@
+import animate from "tailwindcss-animate";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class"],
@@ -44,7 +46,22 @@ export default {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
       },
+      fontFamily: {
+        heading: ["var(--font-heading)"],
+        body: ["var(--font-body)"],
+        display: ["var(--font-display)"],
+        mono: ["var(--font-mono)"],
+      },
+      fontSize: {
+        "display-xl": ["clamp(3rem, 7vw, 6.5rem)", { lineHeight: "1.02" }],
+        "display-lg": ["clamp(2.5rem, 5vw, 4.5rem)", { lineHeight: "1.08" }],
+        "display-md": ["clamp(2rem, 3.6vw, 3.25rem)", { lineHeight: "1.12" }],
+        "display-sm": ["clamp(1.5rem, 2.4vw, 2.25rem)", { lineHeight: "1.2" }],
+      },
+      letterSpacing: {
+        label: "0.18em",
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 };

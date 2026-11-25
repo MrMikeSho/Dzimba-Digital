@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 36 33% 97%;
+    --foreground: 20 12% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 12% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 12% 10%;
+    --primary: 20 12% 12%;
+    --primary-foreground: 36 33% 97%;
+    --secondary: 34 20% 92%;
+    --secondary-foreground: 20 12% 12%;
+    --muted: 34 15% 93%;
+    --muted-foreground: 25 8% 40%;
+    --accent: 30 45% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 12% 84%;
+    --input: 30 12% 84%;
+    --ring: 30 45% 42%;
+    --radius: 0.375rem;
+    --chart-1: 30 45% 42%;
+    --chart-2: 20 12% 25%;
+    --chart-3: 34 30% 60%;
+    --chart-4: 200 20% 40%;
+    --chart-5: 10 40% 50%;
+    --font-heading: "Cormorant Garamond", Georgia, serif;
+    --font-display: "Cormorant Garamond", Georgia, serif;
+    --font-body: "Inter", system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .hairline {
+    height: 1px;
+    width: 100%;
+    background: hsl(var(--border));
+  }
+
+  .ghost-btn {
+    @apply inline-flex items-center justify-center border border-foreground px-8 py-3 font-body text-xs uppercase tracking-label transition-colors hover:bg-foreground hover:text-background;
+  }
+}
