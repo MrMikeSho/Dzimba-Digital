@@ -16,14 +16,13 @@ export default function Home() {
 
   useEffect(() => {
     const load = async () => {
-      const [rawProperties, a, t] = await Promise.all([
-        apiClient.entities.Property.list("-created_date", 6),
+      const [p, a, t] = await Promise.all([
+        apiClient.entities.Property.filter({ is_featured: true }, "-created_date", 6),
         apiClient.entities.Agent.filter({ is_featured: true }, "-created_date", 3),
         apiClient.entities.Testimonial.list("-created_date", 5),
       ]);
 
-      // Normalize App 2 Property fields so App 1 Home components work seamlessly
-      const normalized = rawProperties.map((item) => ({
+      const normalized = p.map((item) => ({
         ...item,
         featured_image: item.featured_image || item.image_url,
         images: item.images || item.gallery_urls || [item.image_url].filter(Boolean),
@@ -33,7 +32,13 @@ export default function Home() {
         sqft: item.sqft ?? item.area_sqm,
       }));
 
-      setProperties(normalized);
+      const sorted = normalized.sort((x, y) => {
+        if (x.title === "Marina District Mediterranean Villa") return -1;
+        if (y.title === "Marina District Mediterranean Villa") return 1;
+        return 0;
+      });
+
+      setProperties(sorted);
       setAgents(a);
       setTestimonials(t);
       setLoading(false);
