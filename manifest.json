@@ -1,0 +1,10 @@
+{
+  "name": "Dzimba Digital",
+  "short_name": "Dzimba",
+  "description": "Property listings and real estate showcase.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f4f0",
+  "theme_color": "#47524c"
+}
