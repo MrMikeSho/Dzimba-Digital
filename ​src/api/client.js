@@ -1,46 +1,55 @@
-// Native standalone data & auth client (replaces @base44/sdk)
-
 const STORAGE_KEYS = {
-  PROPERTIES: "app_properties",
-  AGENTS: "app_agents",
-  TESTIMONIALS: "app_testimonials",
-  USER: "app_user",
-  TOKEN: "app_token",
+  PROPERTIES: "native_app_properties",
+  AGENTS: "native_app_agents",
+  TESTIMONIALS: "native_app_testimonials",
+  INQUIRIES: "native_app_inquiries",
+  USER: "native_app_user",
+  TOKEN: "native_app_token",
 };
 
 const defaultProperties = [
   {
     id: "fb1",
-    title: "Rosenberg Penthouse",
-    type: "Penthouse",
+    title: "Marina District Mediterranean Villa",
+    type: "Villa",
+    property_type: "Villa",
     city: "Zurich",
     district: "Hottingen",
+    neighborhood: "Marina District",
     price_monthly: 5800,
+    price: 5800,
     rooms: 4.5,
+    bedrooms: 4,
+    bathrooms: 3,
+    garage: 2,
     area_sqm: 168,
+    sqft: 1808,
     floor: "6th floor",
     is_featured: true,
-    image_url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80",
+    is_high_priority: true,
+    image_url:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80",
+    featured_image:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80",
     gallery_urls: [
       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80",
       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80",
       "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80",
     ],
     description:
-      "A remarkable penthouse in the heart of Hottingen, combining generous proportions with architectural clarity. The considered layout features an open living and dining area, a premium fitted kitchen and four bedrooms.",
+      "A remarkable residence combining generous proportions with architectural clarity, natural stone, warm oak, and refined living spaces.",
     features: [
-      "Rooftop terrace",
+      "Terrace",
       "Air conditioning",
-      "Underground parking",
+      "Parking",
       "Panoramic views",
       "Fitted kitchen",
       "Underfloor heating",
-      "Elevator",
-      "Guest bathroom",
     ],
     atmosphere: "Modern",
     available_from: "2026-09-01",
     status: "available",
+    created_date: "2026-11-01T00:00:00.000Z",
   },
 ];
 
@@ -48,9 +57,12 @@ const defaultAgents = [
   {
     id: "ag1",
     name: "Elena Vance",
-    role: "Senior Property Advisor",
+    title: "Senior Property Advisor",
     is_featured: true,
-    photo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80",
+    total_sales_volume: "$48M+",
+    photo:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80",
+    created_date: "2026-11-01T00:00:00.000Z",
   },
 ];
 
@@ -58,7 +70,10 @@ const defaultTestimonials = [
   {
     id: "tm1",
     client_name: "Marcus & Claire",
+    property_type: "Penthouse",
+    location: "Marina District",
     quote: "Seamless execution from initial viewing to final handover.",
+    created_date: "2026-11-01T00:00:00.000Z",
   },
 ];
 
@@ -94,7 +109,14 @@ function createEntityStore(storageKey, fallback) {
     },
     async create(record) {
       const items = getCollection(storageKey, fallback);
-      const created = { id: crypto.randomUUID(), created_date: new Date().toISOString(), ...record };
+      const created = {
+        id:
+          typeof crypto !== "undefined" && crypto.randomUUID
+            ? crypto.randomUUID()
+            : String(Date.now()),
+        created_date: new Date().toISOString(),
+        ...record,
+      };
       localStorage.setItem(storageKey, JSON.stringify([created, ...items]));
       return created;
     },
@@ -105,7 +127,11 @@ export const apiClient = {
   entities: {
     Property: createEntityStore(STORAGE_KEYS.PROPERTIES, defaultProperties),
     Agent: createEntityStore(STORAGE_KEYS.AGENTS, defaultAgents),
-    Testimonial: createEntityStore(STORAGE_KEYS.TESTIMONIALS, defaultTestimonials),
+    Testimonial: createEntityStore(
+      STORAGE_KEYS.TESTIMONIALS,
+      defaultTestimonials
+    ),
+    Inquiry: createEntityStore(STORAGE_KEYS.INQUIRIES, []),
   },
   auth: {
     async loginViaEmailPassword(email, _password) {
