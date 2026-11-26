@@ -314,3 +314,5 @@ grant execute on function public.is_broker(), public.my_role() to anon, authenti
 --   update public.profiles set role = 'broker'
 --   where id = (select id from auth.users where email = 'YOUR_EMAIL_HERE');
 -- =====================================================================
+
+-- Cash Flow tables and automatic fee log: see supabase/cashflow.sql

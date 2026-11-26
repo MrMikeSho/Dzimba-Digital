@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
+import CashFlowPanel from "@/components/CashFlowPanel";
 import StatusBadge from "@/components/StatusBadge";
 import {
   FEE_PRESETS,
@@ -575,6 +576,7 @@ export default function Broker() {
     ["requests", "Requests", stats.newRequests],
     ["listings", "Listings", stats.toApprove],
     ["messages", "Messages", inquiries.filter((q) => q.status !== "Handled").length],
+    ["cashflow", "Cash flow", 0],
   ];
 
   return (
@@ -607,7 +609,9 @@ export default function Broker() {
         ))}
       </div>
 
-      {loading ? (
+      {tab === "cashflow" ? (
+        <CashFlowPanel canEdit />
+      ) : loading ? (
         <div className="flex justify-center py-16">
           <div className="w-8 h-8 border-2 border-border border-t-accent rounded-full animate-spin" />
         </div>

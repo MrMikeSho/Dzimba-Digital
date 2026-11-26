@@ -15,6 +15,7 @@ import {
   getMyListings,
   getMyRequests,
   updateProfile,
+  amCashflowViewer,
 } from "@/api/rentals";
 
 const requestHelp = {
@@ -42,6 +43,10 @@ function Section({ title, children, action }) {
 export default function Account() {
   const { user, profile, role, isAuthenticated, isBroker, refreshProfile, logout } =
     useAuth();
+  const [isViewer, setIsViewer] = useState(false);
+  useEffect(() => {
+    if (user?.email) amCashflowViewer(user.email).then(setIsViewer).catch(() => {});
+  }, [user?.email]);
   const [requests, setRequests] = useState([]);
   const [links, setLinks] = useState([]);
   const [listings, setListings] = useState([]);
@@ -157,6 +162,15 @@ export default function Account() {
           <span className="block font-body text-sm opacity-70 mt-1">
             Requests, listings and messages
           </span>
+        </Link>
+      )}
+
+      {isViewer && !isBroker && (
+        <Link
+          to="/cashflow"
+          className="block mt-8 border border-foreground p-5 hover:bg-foreground hover:text-background transition-colors"
+        >
+          <span className="font-display text-xl">View cash flow →</span>
         </Link>
       )}
 

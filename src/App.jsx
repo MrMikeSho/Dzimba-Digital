@@ -18,6 +18,7 @@ import Accessibility from "./pages/Accessibility";
 import Account from "./pages/Account";
 import ListProperty from "./pages/ListProperty";
 import Broker from "./pages/Broker";
+import CashFlow from "./pages/CashFlow";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -45,6 +46,7 @@ const AuthenticatedApp = () => {
         <Route path="/account" element={<Account />} />
         <Route path="/list-property" element={<ListProperty />} />
         <Route path="/broker" element={<Broker />} />
+        <Route path="/cashflow" element={<CashFlow />} />
         <Route path="/sell" element={<Sell />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogDetail />} />

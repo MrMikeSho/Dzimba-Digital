@@ -206,3 +206,50 @@ export async function updateInquiry(id, patch) {
 export async function deleteInquiry(id) {
   must(await supabase.from("inquiries").delete().eq("id", id));
 }
+
+// ---------- Cash flow ----------
+export async function getTransactions() {
+  return must(
+    await supabase.from("transactions").select("*").order("occurred_at", { ascending: false })
+  );
+}
+
+export async function addTransaction({ kind, amount, category, note, method, reference, uid }) {
+  must(
+    await supabase.from("transactions").insert({
+      kind,
+      amount,
+      category: category || null,
+      note: note || null,
+      method: method || null,
+      reference: reference || null,
+      created_by: uid,
+    })
+  );
+}
+
+export async function deleteTransaction(id) {
+  must(await supabase.from("transactions").delete().eq("id", id));
+}
+
+export async function getCashflowViewers() {
+  return must(await supabase.from("cashflow_viewers").select("*").order("added_at"));
+}
+
+export async function addCashflowViewer(email) {
+  must(await supabase.from("cashflow_viewers").insert({ email: email.trim().toLowerCase() }));
+}
+
+export async function removeCashflowViewer(email) {
+  must(await supabase.from("cashflow_viewers").delete().eq("email", email));
+}
+
+export async function amCashflowViewer(email) {
+  if (!email) return false;
+  const { data } = await supabase
+    .from("cashflow_viewers")
+    .select("email")
+    .eq("email", email.toLowerCase())
+    .maybeSingle();
+  return !!data;
+}
