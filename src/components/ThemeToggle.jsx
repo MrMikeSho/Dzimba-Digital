@@ -3,16 +3,16 @@ import { Moon, Sun } from "lucide-react";
 
 function current() {
   try {
-    return localStorage.getItem("theme") || "dark";
+    return localStorage.getItem("theme") || "light";
   } catch {
-    return "dark";
+    return "light";
   }
 }
 
 export function applyTheme(t) {
   document.documentElement.classList.toggle("dark", t === "dark");
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", t === "dark" ? "#050a12" : "#faf8f5");
+  if (meta) meta.setAttribute("content", t === "dark" ? "#16110e" : "#faf8f5");
 }
 
 export default function ThemeToggle() {
