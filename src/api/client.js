@@ -35,7 +35,7 @@ const blogPosts = [
     read_time: 3,
     author_name: "Dzimba Digital",
     featured_image:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80",
+      "/images/blog/courtyard-cottages.jpg",
     excerpt: "Browse for free, send a request, and we link you with the landlord.",
     content:
       "Browsing listings is free and you don't need an account to look around.\n\nWhen you find a home you like, create a free account and send a request. We contact you on WhatsApp to confirm the details.\n\nIf we can place you, we send the once-off fee amount and the payment details. Once the fee is received, we share the landlord's contact and the exact address so you can arrange a viewing.",
@@ -49,7 +49,7 @@ const blogPosts = [
     read_time: 3,
     author_name: "Dzimba Digital",
     featured_image:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80",
+      "/images/blog/pool-courtyard.jpg",
     excerpt: "Simple tips for taking photos that make tenants ask for a viewing.",
     content:
       "Clear photos are the biggest reason a tenant asks about a home. Tidy each room first and open the curtains for natural light.\n\nPhotograph every room, the kitchen, the bathroom, the yard and the outside of the house. Hold your phone sideways, and keep it steady.\n\nUpload at least four photos when you submit your property. We review each listing before it goes live.",
@@ -63,7 +63,7 @@ const blogPosts = [
     read_time: 3,
     author_name: "Dzimba Digital",
     featured_image:
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80",
+      "/images/blog/thatched-home.jpg",
     excerpt: "What to check before you agree to rent a home.",
     content:
       "Check the water supply, the electricity meter and the roof for leaks. Open and close the windows and doors, and test the locks.\n\nAsk what is included in the rent, how the deposit works, and who to call if something breaks.\n\nWrite down what you agree with the landlord before you pay anything towards the rent.",
