@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { normalizeListing } from "@/api/client";
+import { SITE } from "@/lib/config";
 
 function must({ data, error }) {
   if (error) throw error;
@@ -7,6 +8,28 @@ function must({ data, error }) {
 }
 
 // ---------- photos -------------------------------------------------
+
+// Faint repeated brand name across the photo so it can't be reused elsewhere.
+function drawWatermark(ctx, w, h) {
+  const size = Math.max(18, Math.round(Math.min(w, h) / 12));
+  ctx.save();
+  ctx.globalAlpha = 0.28;
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowColor = "rgba(0,0,0,0.5)";
+  ctx.shadowBlur = 4;
+  ctx.font = `bold ${size}px sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.rotate(-Math.PI / 10);
+  const stepX = size * 8;
+  const stepY = size * 5;
+  for (let y = -h; y < h * 1.5; y += stepY) {
+    for (let x = -w; x < w * 1.5; x += stepX) {
+      ctx.fillText(SITE.name, x, y);
+    }
+  }
+  ctx.restore();
+}
 
 async function compressImage(file, maxSide = 1600, quality = 0.8) {
   try {
@@ -17,7 +40,9 @@ async function compressImage(file, maxSide = 1600, quality = 0.8) {
     const canvas = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
-    canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    drawWatermark(ctx, w, h);
     const blob = await new Promise((resolve) =>
       canvas.toBlob(resolve, "image/jpeg", quality)
     );
@@ -103,7 +128,7 @@ export async function getMyRequestForListing(listingId, uid) {
   );
 }
 
-export async function createRequest({ listing, uid, name, phone, message, preferred_date }) {
+export async function createRequest({ listing, uid, name, phone, message, preferred_date, preferred_time }) {
   return must(
     await supabase
       .from("requests")
@@ -115,6 +140,8 @@ export async function createRequest({ listing, uid, name, phone, message, prefer
         tenant_phone: phone || null,
         message: message || null,
         preferred_date: preferred_date || null,
+        preferred_time: preferred_time || null,
+        terms_accepted_at: new Date().toISOString(),
       })
       .select()
       .single()
@@ -252,4 +279,79 @@ export async function amCashflowViewer(email) {
     .eq("email", email.toLowerCase())
     .maybeSingle();
   return !!data;
+}
+
+// ---------- Renter requests ("I'm looking for...") ----------
+export async function createRenterRequest({ uid, name, phone, area, budget, bedrooms, property_type, move_in, notes }) {
+  must(
+    await supabase.from("renter_requests").insert({
+      tenant_id: uid,
+      tenant_name: name || null,
+      tenant_phone: phone || null,
+      area: area || null,
+      budget: budget ? Number(budget) : null,
+      bedrooms: bedrooms ? Number(bedrooms) : null,
+      property_type: property_type || null,
+      move_in: move_in || null,
+      notes: notes || null,
+      terms_accepted_at: new Date().toISOString(),
+    })
+  );
+}
+
+export async function getMyRenterRequests(uid) {
+  return must(
+    await supabase
+      .from("renter_requests")
+      .select("*")
+      .eq("tenant_id", uid)
+      .order("created_at", { ascending: false })
+  );
+}
+
+export async function cancelRenterRequest(id) {
+  must(await supabase.from("renter_requests").delete().eq("id", id));
+}
+
+export async function getAllRenterRequests() {
+  return must(
+    await supabase.from("renter_requests").select("*").order("created_at", { ascending: false })
+  );
+}
+
+export async function updateRenterRequest(id, patch) {
+  must(await supabase.from("renter_requests").update(patch).eq("id", id));
+}
+
+// ---------- Notifications (worked out from existing data) ----------
+export async function getNotifications({ uid, isBroker }) {
+  const items = [];
+  if (isBroker) {
+    const [reqs, lst, rr, inq] = await Promise.all([
+      supabase.from("requests").select("id", { count: "exact", head: true }).eq("status", "new"),
+      supabase.from("listings").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("renter_requests").select("id", { count: "exact", head: true }).eq("status", "new"),
+      supabase.from("inquiries").select("id", { count: "exact", head: true }).neq("status", "Handled"),
+    ]);
+    if (reqs.count) items.push({ text: `${reqs.count} new viewing request${reqs.count > 1 ? "s" : ""}`, to: "/broker?tab=requests" });
+    if (rr.count) items.push({ text: `${rr.count} new renter request${rr.count > 1 ? "s" : ""}`, to: "/broker?tab=renters" });
+    if (lst.count) items.push({ text: `${lst.count} listing${lst.count > 1 ? "s" : ""} to approve`, to: "/broker?tab=listings" });
+    if (inq.count) items.push({ text: `${inq.count} unread message${inq.count > 1 ? "s" : ""}`, to: "/broker?tab=messages" });
+    return items;
+  }
+  const [mine, links] = await Promise.all([
+    supabase.from("requests").select("listing_title,status").eq("tenant_id", uid).in("status", ["accepted", "paid", "linked"]),
+    supabase.from("links").select("listing_title").eq("landlord_id", uid),
+  ]);
+  for (const r of mine.data || []) {
+    const text =
+      r.status === "accepted"
+        ? `Fee requested for ${r.listing_title}`
+        : r.status === "paid"
+        ? `Fee received for ${r.listing_title}`
+        : `You're linked: ${r.listing_title}`;
+    items.push({ text, to: "/account" });
+  }
+  for (const l of links.data || []) items.push({ text: `A tenant was linked to ${l.listing_title}`, to: "/account" });
+  return items;
 }

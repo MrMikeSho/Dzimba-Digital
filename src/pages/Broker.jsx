@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import CashFlowPanel from "@/components/CashFlowPanel";
+import RenterRequestsTab from "@/components/RenterRequestsTab";
 import StatusBadge from "@/components/StatusBadge";
 import {
   FEE_PRESETS,
+  FEE_TIERS,
+  suggestFee,
   feeRequestMessage,
   formatRent,
   landlordLinkedMessage,
@@ -20,6 +23,7 @@ import {
   deleteListing,
   getAllLinks,
   getAllListings,
+  getAllRenterRequests,
   getAllRequests,
   getInquiries,
   getPrivateMap,
@@ -57,7 +61,7 @@ function WaButton({ phone, text, children }) {
 
 function RequestCard({ req, listing, priv, link, onChanged }) {
   const [mode, setMode] = useState(null); // null | "accept" | "paid"
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(() => String(suggestFee(listing)));
   const [method, setMethod] = useState("EcoCash");
   const [reference, setReference] = useState("");
   const [busy, setBusy] = useState(false);
@@ -141,7 +145,14 @@ function RequestCard({ req, listing, priv, link, onChanged }) {
 
       {req.message && <p className="font-body text-sm mt-3 bg-secondary/40 p-3">"{req.message}"</p>}
       {req.preferred_date && (
-        <p className="font-body text-xs text-muted-foreground mt-2">Preferred viewing date: {req.preferred_date}</p>
+        <p className="font-body text-xs text-muted-foreground mt-2">
+          Preferred viewing: {req.preferred_date}{req.preferred_time ? `, ${req.preferred_time}` : ""}
+        </p>
+      )}
+      {req.terms_accepted_at && (
+        <p className="font-body text-xs text-muted-foreground mt-1">
+          Terms signed {new Date(req.terms_accepted_at).toLocaleString()}
+        </p>
       )}
 
       <div className="flex flex-wrap gap-3 mt-4">
@@ -185,6 +196,17 @@ function RequestCard({ req, listing, priv, link, onChanged }) {
       {req.status === "new" && mode === "accept" && (
         <div className="mt-4 border-t border-border pt-4 space-y-3">
           <p className="font-body text-xs tracking-label uppercase text-muted-foreground">Fee amount (USD)</p>
+          <select
+            value={FEE_TIERS.some((t) => String(t.amount) === amount) ? amount : ""}
+            onChange={(e) => e.target.value && setAmount(e.target.value)}
+            className="w-full h-10 border border-border bg-background px-3 text-sm"
+          >
+            <option value="">Choose by size of home…</option>
+            {FEE_TIERS.map((t) => (
+              <option key={t.amount} value={String(t.amount)}>{t.label} — ${t.amount}</option>
+            ))}
+          </select>
+          {listing && <p className="font-body text-xs text-muted-foreground">Suggested for this home: {formatRent(suggestFee(listing))}</p>}
           <div className="flex flex-wrap items-center gap-2">
             {FEE_PRESETS.map((p) => (
               <button
@@ -360,6 +382,7 @@ function ListingsTab({ listings, privateMap, reload }) {
           ["pending", "To approve"],
           ["approved", "Live"],
           ["rented", "Rented"],
+          ["reserved", "Pending"],
           ["rejected", "Rejected"],
           ["all", "All"],
         ].map(([key, label]) => (
@@ -409,11 +432,18 @@ function ListingsTab({ listings, privateMap, reload }) {
                     )}
                     {l.status === "approved" && (
                       <>
+                        {btn("Mark pending", "reserved", "outline", l.id)}
                         {btn("Mark rented", "rented", "outline", l.id)}
                         {btn("Unlist", "pending", "outline", l.id)}
                       </>
                     )}
-                    {l.status === "rented" && btn("Relist", "approved", "outline", l.id)}
+                    {l.status === "reserved" && (
+                      <>
+                        {btn("Available", "approved", "outline", l.id)}
+                        {btn("Mark rented", "rented", "outline", l.id)}
+                      </>
+                    )}
+                    {l.status === "rented" && btn("Available", "approved", "outline", l.id)}
                     {l.status === "rejected" && btn("Approve", "approved", "outline", l.id)}
                     <Button
                       variant="outline"
@@ -516,17 +546,20 @@ export default function Broker() {
   const [privateMap, setPrivateMap] = useState({});
   const [links, setLinks] = useState([]);
   const [inquiries, setInquiries] = useState([]);
+  const [renters, setRenters] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
-      const [r, l, p, k, q] = await Promise.all([
+      const [r, l, p, k, q, rr] = await Promise.all([
         getAllRequests(),
         getAllListings(),
         getPrivateMap(),
         getAllLinks(),
         getInquiries(),
+        getAllRenterRequests(),
       ]);
+      setRenters(rr);
       setRequests(r);
       setListings(l);
       setPrivateMap(p);
@@ -556,11 +589,12 @@ export default function Broker() {
     });
     return {
       newRequests: requests.filter((r) => r.status === "new").length,
+      newRenters: renters.filter((x) => x.status === "new").length,
       toApprove: listings.filter((l) => l.status === "pending").length,
       month: sum(thisMonth),
       total: sum(paid),
     };
-  }, [requests, listings]);
+  }, [requests, listings, renters]);
 
   if (!isAuthenticated) return <Navigate to="/login?returnTo=%2Fbroker" replace />;
   if (!isBroker) {
@@ -575,6 +609,7 @@ export default function Broker() {
   const tabs = [
     ["requests", "Requests", stats.newRequests],
     ["listings", "Listings", stats.toApprove],
+    ["renters", "Renter requests", stats.newRenters],
     ["messages", "Messages", inquiries.filter((q) => q.status !== "Handled").length],
     ["cashflow", "Cash flow", 0],
   ];
@@ -617,6 +652,8 @@ export default function Broker() {
         </div>
       ) : tab === "listings" ? (
         <ListingsTab listings={listings} privateMap={privateMap} reload={load} />
+      ) : tab === "renters" ? (
+        <RenterRequestsTab rows={renters} reload={load} />
       ) : tab === "messages" ? (
         <MessagesTab inquiries={inquiries} reload={load} />
       ) : (

@@ -35,6 +35,28 @@
     --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 
+  .dark {
+    --background: 215 55% 4%;
+    --foreground: 210 25% 95%;
+    --card: 215 45% 7%;
+    --card-foreground: 210 25% 95%;
+    --popover: 215 45% 8%;
+    --popover-foreground: 210 25% 95%;
+    --primary: 197 70% 48%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 35% 10%;
+    --secondary-foreground: 210 25% 95%;
+    --muted: 215 30% 12%;
+    --muted-foreground: 213 15% 65%;
+    --accent: 197 70% 48%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 25% 18%;
+    --input: 215 25% 18%;
+    --ring: 197 70% 48%;
+  }
+
   * {
     @apply border-border;
   }

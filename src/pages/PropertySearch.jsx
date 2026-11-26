@@ -20,7 +20,7 @@ export default function PropertySearch() {
       price: urlParams.get("price") || "Any Price",
       beds: "Any Beds",
       location: urlParams.get("location") || "All Locations",
-      search: "",
+      search: urlParams.get("search") || "",
     };
   };
 
@@ -108,7 +108,8 @@ export default function PropertySearch() {
               No properties match your criteria
             </p>
             <p className="font-body text-sm text-muted-foreground mt-3">
-              Try adjusting your filters
+              Try adjusting your filters, or{" "}
+              <a href="/find-rental" className="underline">tell us what you need</a>
             </p>
           </div>
         ) : (

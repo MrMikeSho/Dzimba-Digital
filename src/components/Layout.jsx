@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Home as HomeIcon, KeyRound, Menu, Search, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import NotificationsBell from "@/components/NotificationsBell";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/lib/AuthContext";
 import { SITE } from "@/lib/config";
 
@@ -19,6 +22,9 @@ function Header() {
     : { to: "/login", label: "Log in" };
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [q, setQ] = useState("");
+  const navigate = useNavigate();
   const overHero = pathname === "/" && !scrolled && !open;
 
   useEffect(() => {
@@ -71,6 +77,12 @@ function Header() {
           </Link>
         </nav>
 
+        <div className="flex items-center">
+          <button type="button" aria-label="Search" className="p-2" onClick={() => setSearching((v) => !v)}>
+            <Search size={20} />
+          </button>
+          <NotificationsBell />
+          <ThemeToggle />
         <button
           type="button"
           className="md:hidden p-2 -mr-2"
@@ -79,7 +91,27 @@ function Header() {
         >
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
+        </div>
       </div>
+
+      {searching && (
+        <form
+          className="bg-background text-foreground border-t border-border/60 px-[4%] py-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSearching(false);
+            navigate(`/properties?search=${encodeURIComponent(q.trim())}`);
+          }}
+        >
+          <input
+            autoFocus
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search by area, title or type"
+            className="w-full bg-transparent border border-border px-4 py-3 text-sm outline-none focus:border-foreground"
+          />
+        </form>
+      )}
 
       {open && (
         <nav className="md:hidden bg-background text-foreground border-t border-border/60 px-[4%] py-6 flex flex-col gap-5">
@@ -155,6 +187,29 @@ function Footer() {
   );
 }
 
+function BottomBar() {
+  const { pathname } = useLocation();
+  const tabs = [
+    { to: "/list-property", label: "List Your Property", Icon: KeyRound },
+    { to: "/properties", label: "Find a Rental", Icon: HomeIcon },
+  ];
+  return (
+    <nav className="md:hidden fixed bottom-3 inset-x-3 z-40 flex gap-1 p-1.5 rounded-full bg-card/95 backdrop-blur border border-border shadow-lg">
+      {tabs.map(({ to, label, Icon }) => (
+        <Link
+          key={to}
+          to={to}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-sm ${
+            pathname.startsWith(to) ? "bg-muted text-accent" : "text-muted-foreground"
+          }`}
+        >
+          <Icon size={18} /> {label}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
 export default function Layout() {
   const { pathname, hash } = useLocation();
 
@@ -165,10 +220,11 @@ export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 pb-20 md:pb-0">
         <Outlet />
       </main>
       <Footer />
+      <BottomBar />
     </div>
   );
 }

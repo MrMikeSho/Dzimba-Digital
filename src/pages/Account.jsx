@@ -165,6 +165,16 @@ export default function Account() {
         </Link>
       )}
 
+      {!isBroker && role === "tenant" && (
+        <Link
+          to="/find-rental"
+          className="block mt-8 border border-foreground p-5 hover:bg-foreground hover:text-background transition-colors"
+        >
+          <span className="font-display text-xl">Tell us what you're looking for →</span>
+          <span className="block font-body text-sm opacity-70 mt-1">Area, budget, bedrooms and move-in</span>
+        </Link>
+      )}
+
       {isViewer && !isBroker && (
         <Link
           to="/cashflow"

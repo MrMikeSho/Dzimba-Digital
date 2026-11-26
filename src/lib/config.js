@@ -54,12 +54,40 @@ export const FEATURE_OPTIONS = [
 
 export const FEE_PRESETS = [5, 7, 10];
 
+// Once-off fee by size of home.
+export const FEE_TIERS = [
+  { amount: 5, label: "1–4 Rooms Cottage" },
+  { amount: 7, label: "2–3 Bed House" },
+  { amount: 10, label: "4–7 Bed House" },
+];
+
+export function suggestFee(listing) {
+  if (!listing) return 5;
+  const beds = Number(listing.bedrooms || 0);
+  if (beds >= 4) return 10;
+  if (beds >= 2 && !["Room", "Cottage"].includes(listing.property_type)) return 7;
+  return 5;
+}
+
+export const VIEWING_TIMES = ["Morning", "Afternoon", "Evening"];
+
+export const MOVE_IN_OPTIONS = [
+  "As soon as possible",
+  "This month",
+  "Next month",
+  "In 2–3 months",
+];
+
+export const TERMS_AGREEMENT = `I understand that ${SITE.name} acts as the exclusive broker for this listing, and viewing arrangements must be coordinated through the platform.`;
+export const TERMS_AGREEMENT_RENTER = `I understand that ${SITE.name} finds homes on my behalf for a once-off fee, and viewings are arranged through the platform.`;
+
 export const STATUS_LABELS = {
   // listings
   pending: "Awaiting approval",
-  approved: "Live",
+  approved: "Available",
   rejected: "Not approved",
   rented: "Rented",
+  reserved: "Pending",
   // requests
   new: "Received",
   accepted: "Fee requested",

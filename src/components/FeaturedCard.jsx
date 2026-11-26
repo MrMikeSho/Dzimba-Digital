@@ -27,9 +27,9 @@ export default function FeaturedCard({ property, showBadge = false }) {
             className="w-full h-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-700" />
-          {showBadge && (
+          {(showBadge || property.status === "reserved") && (
             <span className="absolute top-4 left-4 bg-black/75 text-white text-[10px] uppercase tracking-widest px-3 py-1">
-              New
+              {property.status === "reserved" ? "Pending" : "New"}
             </span>
           )}
         </div>

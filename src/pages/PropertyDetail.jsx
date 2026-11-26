@@ -108,6 +108,11 @@ export default function PropertyDetail() {
                 {property.atmosphere}
               </span>
             )}
+            {property.status === "reserved" && (
+              <span className="text-xs uppercase tracking-[0.2em] px-3 py-1.5 bg-amber-200 text-amber-950">
+                Pending
+              </span>
+            )}
             {property.status === "approved" && (
               <span className="text-xs uppercase tracking-[0.2em] px-3 py-1.5 bg-primary text-primary-foreground">
                 Available

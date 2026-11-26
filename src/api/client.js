@@ -79,7 +79,7 @@ export const apiClient = {
         const { data, error } = await supabase
           .from("listings")
           .select("*")
-          .eq("status", "approved")
+          .in("status", ["approved", "reserved"])
           .order("created_at", { ascending: false })
           .limit(limit);
         if (error) throw error;

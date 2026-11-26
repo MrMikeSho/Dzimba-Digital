@@ -316,3 +316,5 @@ grant execute on function public.is_broker(), public.my_role() to anon, authenti
 -- =====================================================================
 
 -- Cash Flow tables and automatic fee log: see supabase/cashflow.sql
+
+-- Terms/time, Pending status and renter requests: see supabase/update2.sql

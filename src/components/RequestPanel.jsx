@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import StatusBadge from "@/components/StatusBadge";
+import { TERMS_AGREEMENT, VIEWING_TIMES } from "@/lib/config";
 import { createRequest, getMyRequestForListing, updateProfile } from "@/api/rentals";
 
 const inputClass =
@@ -28,6 +29,8 @@ export default function RequestPanel({ listing }) {
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [date, setDate] = useState("");
+  const [time, setTime] = useState("Morning");
+  const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -75,6 +78,14 @@ export default function RequestPanel({ listing }) {
     );
   }
 
+  if (!existing && listing.status === "reserved") {
+    return (
+      <p className="text-sm text-muted-foreground">
+        This home is pending (under offer) and isn't taking requests right now. Browse other listings or check back soon.
+      </p>
+    );
+  }
+
   if (existing) {
     return (
       <div className="border border-primary/30 bg-primary/5 p-6">
@@ -96,6 +107,10 @@ export default function RequestPanel({ listing }) {
       toast({ title: "Enter a phone number we can WhatsApp", variant: "destructive" });
       return;
     }
+    if (!agreed) {
+      toast({ title: "Please tick the box to agree", variant: "destructive" });
+      return;
+    }
     setBusy(true);
     try {
       if (phone.trim() !== (profile?.phone || "")) {
@@ -109,6 +124,7 @@ export default function RequestPanel({ listing }) {
         phone: phone.trim(),
         message: message.trim(),
         preferred_date: date,
+        preferred_time: time,
       });
       setExisting(created);
     } catch (err) {
@@ -138,8 +154,22 @@ export default function RequestPanel({ listing }) {
           </label>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
         </div>
+        <div>
+          <label className="text-xs uppercase tracking-wider text-muted-foreground block mb-2">
+            Preferred time
+          </label>
+          <select value={time} onChange={(e) => setTime(e.target.value)} className={inputClass}>
+            {VIEWING_TIMES.map((t) => (
+              <option key={t} value={t} className="text-black">{t}</option>
+            ))}
+          </select>
+        </div>
         <textarea rows={3} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Anything we should know? (optional)" className={`${inputClass} resize-none`} />
-        <Button type="submit" className="w-full h-12" disabled={busy}>
+        <label className="flex items-start gap-3 text-sm text-muted-foreground leading-snug cursor-pointer">
+          <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-1 h-4 w-4 shrink-0" />
+          <span>{TERMS_AGREEMENT}</span>
+        </label>
+        <Button type="submit" className="w-full h-12" disabled={busy || !agreed}>
           {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : (
             <>
               Send request <Check size={16} />
