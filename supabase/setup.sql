@@ -4,6 +4,11 @@
 -- It is safe to run again (it drops and recreates policies).
 -- =====================================================================
 
+-- ---------- ACCESS (needed on newer Supabase projects) -------------
+-- Lets the website's roles reach the tables. Row-level security (below)
+-- still decides which rows each person can see or change.
+grant usage on schema public to anon, authenticated;
+
 -- ---------- PROFILES ----------------------------------------------
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -292,6 +297,15 @@ drop policy if exists "listing images delete own" on storage.objects;
 create policy "listing images delete own" on storage.objects
   for delete to authenticated
   using (bucket_id = 'listing-images' and ((storage.foldername(name))[1] = auth.uid()::text or public.is_broker()));
+
+-- Table access for the website (run after the tables above exist).
+grant select on public.listings to anon;
+grant insert on public.inquiries to anon;
+grant select, insert, update, delete on
+  public.profiles, public.listings, public.listing_private,
+  public.requests, public.links, public.inquiries
+  to authenticated;
+grant execute on function public.is_broker(), public.my_role() to anon, authenticated;
 
 -- =====================================================================
 -- AFTER you have created your own account on the website, make it the
