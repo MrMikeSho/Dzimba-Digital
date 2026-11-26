@@ -70,7 +70,7 @@ export default function Home() {
           style={{ y: parallaxY }}
         >
           <img
-            src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1800&q=80"
+            src="/images/home-garden.jpg"
             alt="Modern home"
             className="w-full h-full object-cover"
           />
