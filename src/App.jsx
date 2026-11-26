@@ -15,6 +15,9 @@ import BlogDetail from "./pages/BlogDetail";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Accessibility from "./pages/Accessibility";
+import Account from "./pages/Account";
+import ListProperty from "./pages/ListProperty";
+import Broker from "./pages/Broker";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -39,6 +42,9 @@ const AuthenticatedApp = () => {
         <Route path="/properties" element={<PropertySearch />} />
         <Route path="/property/:id" element={<PropertyDetail />} />
         <Route path="/about" element={<About />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/list-property" element={<ListProperty />} />
+        <Route path="/broker" element={<Broker />} />
         <Route path="/sell" element={<Sell />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogDetail />} />

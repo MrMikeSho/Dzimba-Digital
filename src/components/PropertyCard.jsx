@@ -9,9 +9,7 @@ export default function PropertyCard({
 }) {
   const formatPrice = (price) => {
     if (!price && price !== 0) return "";
-    if (price >= 1000000) return `$${(price / 1000000).toFixed(1)}M`;
-    if (price >= 1000) return `$${(price / 1000).toFixed(0)}K`;
-    return `$${price}`;
+    return `$${Number(price).toLocaleString("en-US")}/mo`;
   };
 
   const isLarge = size === "large";
@@ -37,7 +35,7 @@ export default function PropertyCard({
 
           {showBadge && (
             <span className="absolute top-4 left-4 bg-black/75 text-white text-[10px] uppercase tracking-widest px-3 py-1">
-              {badgeType === "openhouse" ? "Open House" : "Featured"}
+              New
             </span>
           )}
 
@@ -69,6 +67,7 @@ export default function PropertyCard({
           <h3 className="font-display font-light text-display-sm">
             {property.title}
           </h3>
+          <p className="font-display text-xl mt-1">{formatPrice(property.price)}</p>
           <div className="flex items-center gap-4 mt-2 font-body text-sm text-muted-foreground">
             {property.bedrooms != null && <span>{property.bedrooms} Bed</span>}
             {property.bathrooms != null && (

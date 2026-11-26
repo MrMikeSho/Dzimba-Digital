@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { apiClient } from "@/api/client";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,61 +9,82 @@ import { Lock, Loader2, AlertTriangle } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 
 export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
-  const resetToken = searchParams.get("token");
+  // The emailed link signs the person in temporarily; wait for that to happen.
+  const [ready, setReady] = useState(null);
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    let active = true;
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (active && (event === "PASSWORD_RECOVERY" || session)) setReady(true);
+    });
+    supabase.auth.getSession().then(({ data }) => {
+      if (active && data.session) setReady(true);
+    });
+    const timer = setTimeout(() => {
+      if (active) setReady((r) => (r === true ? true : false));
+    }, 3000);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    if (newPassword.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
     setLoading(true);
     try {
-      await apiClient.auth.resetPassword({ resetToken, newPassword });
-      window.location.href = "/login";
+      await apiClient.auth.updatePassword(newPassword);
+      window.location.href = "/account";
     } catch (err) {
       setError(err.message || "Failed to reset password");
-    } finally {
       setLoading(false);
     }
   };
 
-  if (!resetToken) {
+  if (ready === null) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-4 border-border border-t-foreground rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!ready) {
     return (
       <AuthLayout
         icon={AlertTriangle}
         title="Invalid reset link"
-        subtitle="This password reset link is missing or invalid"
+        subtitle="This password reset link is missing, used or expired"
         footer={
-          <Link
-            to="/forgot-password"
-            className="text-primary font-medium hover:underline"
-          >
+          <Link to="/forgot-password" className="text-primary font-medium hover:underline">
             Request a new link
           </Link>
         }
       >
         <p className="text-sm text-foreground text-center">
-          The link you used appears to be incomplete. Please request a new
-          password reset email.
+          Please request a new password reset email and open the newest link.
         </p>
       </AuthLayout>
     );
   }
 
   return (
-    <AuthLayout
-      icon={Lock}
-      title="New password"
-      subtitle="Enter your new password below"
-    >
+    <AuthLayout icon={Lock} title="New password" subtitle="Enter your new password below">
       {error && (
         <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           {error}
@@ -112,7 +134,7 @@ export default function ResetPassword() {
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Resetting...
+              Saving...
             </>
           ) : (
             "Reset password"

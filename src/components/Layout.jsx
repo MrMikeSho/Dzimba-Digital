@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+import { SITE } from "@/lib/config";
 
 const navItems = [
   { to: "/properties", label: "Listings" },
-  { to: "/sell", label: "Sell" },
+  { to: "/sell", label: "For Landlords" },
   { to: "/about", label: "About" },
   { to: "/blog", label: "Insights" },
 ];
 
 function Header() {
   const { pathname } = useLocation();
+  const { isAuthenticated, isBroker } = useAuth();
+  const accountLink = isAuthenticated
+    ? { to: isBroker ? "/broker" : "/account", label: isBroker ? "Broker" : "Account" }
+    : { to: "/login", label: "Log in" };
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const overHero = pathname === "/" && !scrolled && !open;
@@ -36,7 +42,7 @@ function Header() {
     >
       <div className="max-w-[1600px] mx-auto px-[4%] md:px-[2%] h-16 md:h-20 flex items-center justify-between">
         <Link to="/" className="font-display text-2xl md:text-3xl font-light tracking-wide">
-          Locally
+          {SITE.name}
         </Link>
 
         <nav className="hidden md:flex items-center gap-10">
@@ -54,14 +60,14 @@ function Header() {
             </NavLink>
           ))}
           <Link
-            to="/sell#contact"
+            to={accountLink.to}
             className={`font-body text-xs tracking-label uppercase border px-5 py-2 transition-colors ${
               overHero
                 ? "border-white/70 hover:bg-white hover:text-black"
                 : "border-foreground hover:bg-foreground hover:text-background"
             }`}
           >
-            Contact
+            {accountLink.label}
           </Link>
         </nav>
 
@@ -86,8 +92,8 @@ function Header() {
               {item.label}
             </Link>
           ))}
-          <Link to="/sell#contact" className="ghost-btn text-center">
-            Contact
+          <Link to={accountLink.to} className="ghost-btn text-center">
+            {accountLink.label}
           </Link>
         </nav>
       )}
@@ -100,10 +106,9 @@ function Footer() {
     <footer className="border-t border-border/60 mt-24">
       <div className="max-w-[1400px] mx-auto px-[4%] md:px-[2%] py-16 grid grid-cols-1 md:grid-cols-3 gap-10">
         <div>
-          <p className="font-display text-3xl font-light mb-3">Locally</p>
+          <p className="font-display text-3xl font-light mb-3">{SITE.name}</p>
           <p className="font-body text-sm text-muted-foreground max-w-xs leading-relaxed">
-            Considered homes, honest advice and a seamless experience from first
-            viewing to handover.
+            {SITE.tagline}. Find a home to rent, or list your property.
           </p>
         </div>
         <div>
@@ -144,7 +149,7 @@ function Footer() {
         </div>
       </div>
       <div className="border-t border-border/60 py-6 text-center font-body text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Locally. All rights reserved.
+        © {new Date().getFullYear()} {SITE.name}. All rights reserved.
       </div>
     </footer>
   );

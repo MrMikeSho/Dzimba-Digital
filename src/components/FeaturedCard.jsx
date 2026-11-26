@@ -6,9 +6,7 @@ export default function FeaturedCard({ property, showBadge = false }) {
 
   const formatPrice = (price) => {
     if (!price && price !== 0) return "";
-    if (price >= 1000000) return `$${(price / 1000000).toFixed(1)}M`;
-    if (price >= 1000) return `$${(price / 1000).toFixed(0)}K`;
-    return `$${price}`;
+    return `$${Number(price).toLocaleString("en-US")}/mo`;
   };
 
   return (
@@ -31,7 +29,7 @@ export default function FeaturedCard({ property, showBadge = false }) {
           <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-700" />
           {showBadge && (
             <span className="absolute top-4 left-4 bg-black/75 text-white text-[10px] uppercase tracking-widest px-3 py-1">
-              Featured
+              New
             </span>
           )}
         </div>

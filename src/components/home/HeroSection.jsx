@@ -2,32 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { PRICE_RANGES, PROPERTY_TYPES, SUBURBS } from "@/lib/config";
 
-const locations = [
-  "Any Location",
-  "Pacific Heights",
-  "Marina District",
-  "Nob Hill",
-  "Sea Cliff",
-  "Russian Hill",
-  "Presidio Heights",
-];
-const types = [
-  "Any Type",
-  "Penthouse",
-  "Waterfront",
-  "Modernist",
-  "Estate",
-  "Townhouse",
-  "Condo",
-];
-const priceRanges = [
-  "Any Price",
-  "Under $2M",
-  "$2M – $5M",
-  "$5M – $10M",
-  "$10M+",
-];
+const locations = ["Any Location", ...SUBURBS];
+const types = ["Any Type", ...PROPERTY_TYPES];
+const priceRanges = PRICE_RANGES.map((r) => r.label);
 
 function SearchDropdown({ label, options, value, onChange }) {
   const [open, setOpen] = useState(false);

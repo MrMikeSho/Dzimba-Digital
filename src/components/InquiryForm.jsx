@@ -26,15 +26,24 @@ export default function InquiryForm({ propertyId, propertyTitle }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await apiClient.entities.Inquiry.create({
-      ...form,
-      property_id: propertyId || "",
-      status: "New",
-    });
-    toast({
-      title: "Inquiry Sent",
-      description: "We'll be in touch within 24 hours.",
-    });
+    try {
+      await apiClient.entities.Inquiry.create({
+        ...form,
+        property_id: propertyId || "",
+      });
+      toast({
+        title: "Message sent",
+        description: "We'll be in touch within 24 hours.",
+      });
+    } catch (err) {
+      toast({
+        title: "Couldn't send your message",
+        description: err.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
     setForm({
       full_name: "",
       email: "",

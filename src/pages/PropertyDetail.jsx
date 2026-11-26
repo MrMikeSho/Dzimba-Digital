@@ -4,51 +4,15 @@ import { apiClient } from "@/api/client";
 import {
   ArrowLeft,
   MapPin,
-  Maximize,
   BedDouble,
-  Calendar,
+  Bath,
+  Wallet,
   Building2,
   Check,
-  Phone,
-  Mail,
   Sun,
 } from "lucide-react";
-
-const fallbackProperties = {
-  fb1: {
-    id: "fb1",
-    title: "Rosenberg Penthouse",
-    type: "Penthouse",
-    city: "Zurich",
-    district: "Hottingen",
-    price_monthly: 5800,
-    rooms: 4.5,
-    area_sqm: 168,
-    floor: "6th floor",
-    image_url:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80",
-    gallery_urls: [
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80",
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80",
-    ],
-    description:
-      "A remarkable penthouse in the heart of Hottingen, combining generous proportions with architectural clarity. The considered layout features an open living and dining area, a premium fitted kitchen and four bedrooms.",
-    features: [
-      "Rooftop terrace",
-      "Air conditioning",
-      "Underground parking",
-      "Panoramic views",
-      "Fitted kitchen",
-      "Underfloor heating",
-      "Elevator",
-      "Guest bathroom",
-    ],
-    atmosphere: "Modern",
-    available_from: "2026-09-01",
-    status: "available",
-  },
-};
+import RequestPanel from "@/components/RequestPanel";
+import { formatRent } from "@/lib/config";
 
 const sunLabels = ["06:00", "09:00", "12:00", "15:00", "18:00", "21:00"];
 
@@ -59,19 +23,14 @@ export default function PropertyDetail() {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [sunIndex, setSunIndex] = useState(2);
-  const [inquirySent, setInquirySent] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     const load = async () => {
       setLoading(true);
       try {
-        if (id && fallbackProperties[id]) {
-          setProperty(fallbackProperties[id]);
-        } else {
-          const data = await apiClient.entities.Property.get(id);
-          setProperty(data);
-        }
+        const data = await apiClient.entities.Property.get(id);
+        setProperty(data);
       } catch {
         setProperty(null);
       }
@@ -96,7 +55,7 @@ export default function PropertyDetail() {
           This property does not exist or has been removed.
         </p>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/properties")}
           className="px-6 py-3 border border-foreground hover:bg-foreground hover:text-background transition-all"
         >
           Back to listings
@@ -125,7 +84,7 @@ export default function PropertyDetail() {
     <div className="min-h-screen bg-background pt-20">
       <div className="px-[6vw] py-6 border-b border-border">
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/properties")}
           className="group inline-flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft
@@ -149,15 +108,9 @@ export default function PropertyDetail() {
                 {property.atmosphere}
               </span>
             )}
-            {property.status && (
-              <span
-                className={`text-xs uppercase tracking-[0.2em] px-3 py-1.5 ${
-                  property.status === "available"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-foreground text-background"
-                }`}
-              >
-                {property.status}
+            {property.status === "approved" && (
+              <span className="text-xs uppercase tracking-[0.2em] px-3 py-1.5 bg-primary text-primary-foreground">
+                Available
               </span>
             )}
           </div>
@@ -169,23 +122,22 @@ export default function PropertyDetail() {
           </h1>
           <div className="flex items-center gap-2 text-muted-foreground mt-4">
             <MapPin size={16} />
-            {[property.city, property.district].filter(Boolean).join(", ")}
+            {[property.suburb, property.town].filter(Boolean).join(", ")}
           </div>
         </div>
         <div className="col-span-12 lg:col-span-4 lg:text-right flex lg:justify-end items-end">
           <div>
             <div className="font-heading text-4xl lg:text-5xl">
-              {(property.price_monthly ?? property.price ?? 0).toLocaleString("en-US")}
+              {formatRent(property.rent_monthly)}
               <span className="text-base font-body text-muted-foreground ml-1">
                 / month
               </span>
             </div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground mt-2">
-              Available from{" "}
-              {property.available_from
-                ? new Date(property.available_from).toLocaleDateString()
-                : "on request"}
-            </div>
+            {property.deposit != null && (
+              <div className="text-xs uppercase tracking-wider text-muted-foreground mt-2">
+                Deposit {formatRent(property.deposit)}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -271,39 +223,15 @@ export default function PropertyDetail() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-border">
               {[
-                {
-                  icon: Building2,
-                  label: "Property type",
-                  value: property.type || "—",
-                },
-                {
-                  icon: Maximize,
-                  label: "Living area",
-                  value: property.area_sqm ? `${property.area_sqm} m²` : "—",
-                },
-                {
-                  icon: BedDouble,
-                  label: "Rooms",
-                  value: property.rooms ? `${property.rooms}` : "—",
-                },
-                {
-                  icon: Building2,
-                  label: "Floor",
-                  value: property.floor || "—",
-                },
-                {
-                  icon: Calendar,
-                  label: "Available from",
-                  value: property.available_from
-                    ? new Date(property.available_from).toLocaleDateString()
-                    : "on request",
-                },
+                { icon: Building2, label: "Property type", value: property.type || "—" },
+                { icon: BedDouble, label: "Bedrooms", value: property.bedrooms ?? "—" },
+                { icon: Bath, label: "Bathrooms", value: property.bathrooms ?? "—" },
+                { icon: Wallet, label: "Rent per month", value: formatRent(property.rent_monthly) },
+                { icon: Wallet, label: "Deposit", value: property.deposit != null ? formatRent(property.deposit) : "—" },
                 {
                   icon: MapPin,
                   label: "Location",
-                  value:
-                    [property.city, property.district].filter(Boolean).join(", ") ||
-                    "—",
+                  value: [property.suburb, property.town].filter(Boolean).join(", ") || "—",
                 },
               ].map((row) => (
                 <div key={row.label} className="bg-background p-6">
@@ -349,72 +277,7 @@ export default function PropertyDetail() {
         <div className="col-span-12 lg:col-span-4">
           <div className="lg:sticky lg:top-24">
             <div className="border border-border p-8">
-              <h3 className="font-heading text-2xl mb-2">Request a viewing</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Choose your preferred date and our team will respond within 24
-                hours.
-              </p>
-              {inquirySent ? (
-                <div className="border border-primary/30 bg-primary/5 p-6 text-center">
-                  <div className="w-12 h-12 border border-primary flex items-center justify-center mx-auto mb-4">
-                    <Check size={20} className="text-primary" />
-                  </div>
-                  <div className="font-heading text-lg mb-1">Thank you.</div>
-                  <p className="text-xs text-muted-foreground">
-                    Your viewing request has been received.
-                  </p>
-                </div>
-              ) : (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setInquirySent(true);
-                  }}
-                  className="space-y-4"
-                >
-                  <input
-                    type="text"
-                    required
-                    placeholder="Name"
-                    className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:border-foreground outline-none transition-colors"
-                  />
-                  <input
-                    type="email"
-                    required
-                    placeholder="E-Mail"
-                    className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:border-foreground outline-none transition-colors"
-                  />
-                  <input
-                    type="date"
-                    className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:border-foreground outline-none transition-colors"
-                  />
-                  <textarea
-                    rows={3}
-                    placeholder="Your message…"
-                    className="w-full bg-transparent border border-border px-4 py-3 text-sm focus:border-foreground outline-none transition-colors resize-none"
-                  />
-                  <button
-                    type="submit"
-                    className="w-full px-6 py-3.5 bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-all duration-300 font-medium text-sm"
-                  >
-                    Send request →
-                  </button>
-                </form>
-              )}
-              <div className="mt-6 pt-6 border-t border-border space-y-3">
-                <a
-                  href="tel:+41441234567"
-                  className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Phone size={15} /> +41 44 123 45 67
-                </a>
-                <a
-                  href="mailto:hello@example.com"
-                  className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Mail size={15} /> hello@example.com
-                </a>
-              </div>
+              <RequestPanel listing={property} />
             </div>
           </div>
         </div>

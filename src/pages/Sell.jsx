@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import InquiryForm from "../components/InquiryForm";
@@ -17,12 +17,12 @@ export default function Sell() {
   }, [location.hash]);
 
   const benefits = [
-    "Expert market analysis and competitive pricing",
-    "Professional photography and virtual tours",
-    "Targeted marketing to qualified buyers",
-    "Seamless negotiation and transaction management",
-    "24/7 dedicated agent support",
-    "Strategic staging and presentation",
+    "Submit your home in minutes, with photos from your phone",
+    "Every listing is reviewed before it goes live",
+    "Your address and phone number stay private until a tenant is linked to you",
+    "We receive tenant requests and link you with interested tenants",
+    "Follow your listings and linked tenants from your account",
+    "Questions? Message us any time",
   ];
 
   return (
@@ -35,14 +35,16 @@ export default function Sell() {
           transition={{ duration: 0.6 }}
         >
           <h1 className="font-display text-display-lg font-light mt-3 mb-6">
-            Ready to sell?
+            Landlords, <span className="italic">list with us</span>
           </h1>
           <p className="font-body text-muted-foreground max-w-[600px] leading-relaxed text-base">
-            We understand that selling your property is one of the most
-            important decisions you'll make. Our team of luxury real estate
-            experts is here to guide you through every step of the process,
-            ensuring maximum value and a seamless experience.
+            Have a property to rent out in Mutare? Submit it with us. Tenants
+            send requests for the homes they like, and we link you directly
+            with interested tenants.
           </p>
+          <Link to="/list-property" className="ghost-btn inline-block mt-8">
+            List your property
+          </Link>
         </motion.div>
       </section>
 
@@ -56,7 +58,7 @@ export default function Sell() {
           className="mb-12"
         >
           <h2 className="font-display text-display-md font-light">
-            We got you <span className="italic">covered</span>
+            How it <span className="italic">works for you</span>
           </h2>
         </motion.div>
 
@@ -100,14 +102,13 @@ export default function Sell() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
           <div>
             <h2 className="font-display text-display-lg font-light mt-3 mb-6">
-              Begin Your
+              Talk to
               <br />
-              <span className="italic">Journey</span>
+              <span className="italic">us</span>
             </h2>
             <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-md">
-              Whether you're seeking your next residence or considering listing
-              your property, we're here to guide you with the expertise and
-              discretion you deserve.
+              Not sure how it works, or want us to help you list your property?
+              Send us a message and we'll reply.
             </p>
           </div>
           <div className="md:border md:border-border/50 md:p-8">

@@ -20,17 +20,12 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      await apiClient.auth.loginViaEmailPassword(email, password);
+      await apiClient.auth.loginViaEmailPassword(email.trim(), password);
       window.location.href = returnTo;
     } catch (err) {
       setError(err.message || "Invalid email or password");
-    } finally {
       setLoading(false);
     }
-  };
-
-  const handleGoogle = () => {
-    apiClient.auth.loginWithProvider("google", returnTo);
   };
 
   return (
@@ -53,23 +48,6 @@ export default function Login() {
         </>
       }
     >
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleGoogle}
-      >
-        Continue with Google
-      </Button>
-
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">or</span>
-        </div>
-      </div>
-
       {error && (
         <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           {error}
@@ -100,10 +78,7 @@ export default function Login() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
-            <Link
-              to="/forgot-password"
-              className="text-xs text-primary hover:underline"
-            >
+            <Link to="/forgot-password" className="text-xs text-primary hover:underline">
               Forgot password?
             </Link>
           </div>

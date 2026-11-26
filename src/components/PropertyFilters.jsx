@@ -1,34 +1,9 @@
 import { ChevronDown } from "lucide-react";
+import { PRICE_RANGES, PROPERTY_TYPES, SUBURBS } from "@/lib/config";
 
-export const priceRanges = [
-  { label: "Any Price", min: 0, max: Infinity },
-  { label: "Under $2M", min: 0, max: 2000000 },
-  { label: "$2M – $5M", min: 2000000, max: 5000000 },
-  { label: "$5M – $10M", min: 5000000, max: 10000000 },
-  { label: "$10M+", min: 10000000, max: Infinity },
-];
+export const priceRanges = PRICE_RANGES;
 
-export const propertyTypes = [
-  "All Types",
-  "Villa",
-  "Penthouse",
-  "Waterfront",
-  "Modernist",
-  "Estate",
-  "Townhouse",
-  "Condo",
-];
-
-export const locations = [
-  "All Locations",
-  "Zurich",
-  "Pacific Heights",
-  "Marina District",
-  "Nob Hill",
-  "Sea Cliff",
-  "Russian Hill",
-  "Presidio Heights",
-];
+export const propertyTypes = ["All Types", ...PROPERTY_TYPES];
 
 export const bedOptions = ["Any Beds", "1+", "2+", "3+", "4+", "5+"];
 
@@ -55,7 +30,8 @@ function FilterSelect({ label, value, options, onChange }) {
   );
 }
 
-export default function PropertyFilters({ filters, onChange, total }) {
+export default function PropertyFilters({ filters, onChange, total, extraLocations = [] }) {
+  const locations = ["All Locations", ...SUBURBS, ...extraLocations.filter((l) => !SUBURBS.includes(l))];
   const set = (key, value) => onChange({ ...filters, [key]: value });
 
   return (

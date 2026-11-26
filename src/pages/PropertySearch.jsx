@@ -8,19 +8,6 @@ import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 
-// Listings can come from either data shape (sale or rental); make sure the
-// fields the cards and filters read are always present.
-const normalize = (item) => ({
-  ...item,
-  featured_image: item.featured_image || item.image_url,
-  images: item.images || item.gallery_urls || [item.image_url].filter(Boolean),
-  neighborhood: item.neighborhood || item.district,
-  property_type: item.property_type || item.type,
-  price: item.price ?? item.price_monthly,
-  bedrooms: item.bedrooms ?? item.rooms,
-  sqft: item.sqft ?? item.area_sqm,
-});
-
 export default function PropertySearch() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +42,7 @@ export default function PropertySearch() {
   useEffect(() => {
     const load = async () => {
       const data = await apiClient.entities.Property.list("-created_date", 50);
-      setProperties(data.map(normalize));
+      setProperties(data);
       setLoading(false);
     };
     load();
@@ -104,7 +91,12 @@ export default function PropertySearch() {
           </h1>
         </motion.div>
 
-        <PropertyFilters filters={filters} onChange={setFilters} total={filtered.length} />
+        <PropertyFilters
+          filters={filters}
+          onChange={setFilters}
+          total={filtered.length}
+          extraLocations={[...new Set(properties.map((x) => x.suburb).filter(Boolean))]}
+        />
 
         {loading ? (
           <div className="flex justify-center py-24">

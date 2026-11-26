@@ -1,47 +1,25 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { apiClient } from "@/api/client";
 import HeroSection from "../components/home/HeroSection";
 import HighPriorityListings from "../components/home/HighPriorityListings";
 import NeighborhoodExpertise from "../components/home/NeighborhoodExpertise";
 import ServicesOverview from "../components/home/ServicesOverview";
-import AgentHighlights from "../components/home/AgentHighlights";
-import ClientStories from "../components/home/ClientStories";
 
 export default function Home() {
   const [properties, setProperties] = useState([]);
-  const [agents, setAgents] = useState([]);
-  const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const [p, a, t] = await Promise.all([
-        apiClient.entities.Property.filter({ is_featured: true }, "-created_date", 6),
-        apiClient.entities.Agent.filter({ is_featured: true }, "-created_date", 3),
-        apiClient.entities.Testimonial.list("-created_date", 5),
-      ]);
-
-      const normalized = p.map((item) => ({
-        ...item,
-        featured_image: item.featured_image || item.image_url,
-        images: item.images || item.gallery_urls || [item.image_url].filter(Boolean),
-        neighborhood: item.neighborhood || item.district,
-        price: item.price ?? item.price_monthly,
-        bedrooms: item.bedrooms ?? item.rooms,
-        sqft: item.sqft ?? item.area_sqm,
-      }));
-
-      const sorted = normalized.sort((x, y) => {
-        if (x.title === "Marina District Mediterranean Villa") return -1;
-        if (y.title === "Marina District Mediterranean Villa") return 1;
-        return 0;
-      });
-
-      setProperties(sorted);
-      setAgents(a);
-      setTestimonials(t);
-      setLoading(false);
+      try {
+        setProperties(await apiClient.entities.Property.list("-created_date", 4));
+      } catch {
+        setProperties([]);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, []);
@@ -64,13 +42,27 @@ export default function Home() {
   return (
     <div>
       <HeroSection heroImage="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1800&q=80" />
-      <HighPriorityListings properties={properties} />
+
+      {properties.length > 0 ? (
+        <HighPriorityListings properties={properties} />
+      ) : (
+        <section className="py-24 md:py-40 px-[4%] max-w-[760px] mx-auto text-center">
+          <h2 className="font-display text-display-md font-light">
+            New listings <span className="italic">coming soon</span>
+          </h2>
+          <p className="font-body text-muted-foreground mt-6">
+            Are you a landlord? List your property and we'll find you a tenant.
+          </p>
+          <Link to="/list-property" className="ghost-btn inline-block mt-8">
+            List your property
+          </Link>
+        </section>
+      )}
+
       <div className="hairline max-w-[1400px] mx-auto" />
       <NeighborhoodExpertise />
       <ServicesOverview />
-      <div className="hairline max-w-[1400px] mx-auto" />
-      <AgentHighlights agents={agents} />
-      <ClientStories testimonials={testimonials} />
+
       <section className="w-full h-[280px] md:h-[600px] overflow-hidden relative">
         <motion.div
           ref={parallaxRef}
@@ -79,7 +71,7 @@ export default function Home() {
         >
           <img
             src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1800&q=80"
-            alt="Luxury modern home"
+            alt="Modern home"
             className="w-full h-full object-cover"
           />
         </motion.div>

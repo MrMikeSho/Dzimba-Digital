@@ -13,7 +13,7 @@ export default function HighPriorityListings({ properties }) {
       <div className="flex items-end justify-between mb-16 px-[2%]">
         <div>
           <h2 className="font-display text-display-lg font-light mt-3">
-            Featured Properties
+            Latest Listings
           </h2>
         </div>
         <Link
