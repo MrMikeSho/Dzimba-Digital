@@ -36,6 +36,7 @@ function Header() {
 
   useEffect(() => {
     setOpen(false);
+    setSearching(false);
   }, [pathname]);
 
   return (

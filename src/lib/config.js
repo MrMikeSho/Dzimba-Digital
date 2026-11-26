@@ -52,6 +52,19 @@ export const FEATURE_OPTIONS = [
   "Pets allowed",
 ];
 
+// Extra options for small units (a room or cottage of 1-2 rooms).
+export const SMALL_UNIT_OPTIONS = [
+  "En-suite",
+  "WiFi included in rent",
+  "Water included in rent",
+  "ZESA (electricity) included in rent",
+];
+
+export function isSmallUnit(type, bedrooms) {
+  const beds = bedrooms === "" || bedrooms == null ? 0 : Number(bedrooms);
+  return ["Room", "Cottage"].includes(type) && beds <= 2;
+}
+
 export const FEE_PRESETS = [5, 7, 10];
 
 // Once-off fee by size of home.

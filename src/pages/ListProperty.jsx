@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
-import { FEATURE_OPTIONS, PROPERTY_TYPES, SUBURBS, TOWN } from "@/lib/config";
+import { FEATURE_OPTIONS, PROPERTY_TYPES, SMALL_UNIT_OPTIONS, SUBURBS, TOWN, isSmallUnit } from "@/lib/config";
 import { createListing, updateProfile, uploadListingImages } from "@/api/rentals";
 
 const MAX_PHOTOS = 8;
@@ -44,6 +44,7 @@ export default function ListProperty() {
     contact_phone: "",
   });
   const [features, setFeatures] = useState([]);
+  const small = isSmallUnit(form.property_type, form.bedrooms);
   const [files, setFiles] = useState([]);
   const [busy, setBusy] = useState(false);
 
@@ -140,7 +141,9 @@ export default function ListProperty() {
           deposit: form.deposit === "" ? null : Number(form.deposit),
           bedrooms: form.bedrooms === "" ? null : Number(form.bedrooms),
           bathrooms: form.bathrooms === "" ? null : Number(form.bathrooms),
-          features,
+          features: features.filter(
+            (f) => FEATURE_OPTIONS.includes(f) || (small && SMALL_UNIT_OPTIONS.includes(f))
+          ),
           images,
         },
         priv: {
@@ -218,6 +221,20 @@ export default function ListProperty() {
         <Field label="Description" hint="Tell tenants what makes the home good: size, condition, nearby schools or shops.">
           <Textarea rows={5} value={form.description} onChange={set("description")} />
         </Field>
+
+        {small && (
+          <div className="space-y-3">
+            <Label>Included in the rent</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {SMALL_UNIT_OPTIONS.map((f) => (
+                <label key={f} className="flex items-center gap-3 text-sm border border-border px-3 py-3 cursor-pointer">
+                  <input type="checkbox" checked={features.includes(f)} onChange={() => toggleFeature(f)} className="w-4 h-4" />
+                  {f}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-3">
           <Label>Features</Label>
