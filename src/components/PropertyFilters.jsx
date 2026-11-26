@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import { PRICE_RANGES, PROPERTY_TYPES, SUBURBS } from "@/lib/config";
+import { PRICE_RANGES, PROPERTY_TYPES, SMALL_UNIT_OPTIONS, SUBURBS } from "@/lib/config";
 
 export const priceRanges = PRICE_RANGES;
 
@@ -64,6 +64,25 @@ export default function PropertyFilters({ filters, onChange, total, extraLocatio
         <p className="col-span-2 md:col-span-1 font-body text-xs tracking-label uppercase text-muted-foreground md:text-right pb-3">
           {total} {total === 1 ? "property" : "properties"}
         </p>
+      </div>
+      <div className="mt-5 flex flex-wrap gap-2">
+        {SMALL_UNIT_OPTIONS.map((opt) => {
+          const on = (filters.included || []).includes(opt);
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() =>
+                set("included", on ? filters.included.filter((x) => x !== opt) : [...(filters.included || []), opt])
+              }
+              className={`px-3 py-2 text-xs border transition-colors ${
+                on ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
       </div>
       <input
         type="search"

@@ -21,6 +21,7 @@ export default function PropertySearch() {
       beds: "Any Beds",
       location: urlParams.get("location") || "All Locations",
       search: urlParams.get("search") || "",
+      included: [],
     };
   };
 
@@ -68,6 +69,7 @@ export default function PropertySearch() {
         if ((p.bedrooms ?? 0) < minBeds) return false;
       }
 
+      if ((filters.included || []).some((f) => !(p.features || []).includes(f))) return false;
       if (filters.search) {
         const q = filters.search.toLowerCase();
         const searchable = `${p.title} ${p.city} ${p.neighborhood} ${p.address} ${p.property_type}`.toLowerCase();
